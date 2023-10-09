@@ -1,6 +1,8 @@
 from ..utils.display_markdown_message import display_markdown_message
 import json
 import os
+import datetime
+import glob
 
 def handle_undo(self, arguments):
     # Removes all messages after the most recent user entry (and the entry itself).
@@ -38,8 +40,9 @@ def handle_help(self, arguments):
       "%debug [true/false]": "Toggle debug mode. Without arguments or with 'true', it enters debug mode. With 'false', it exits debug mode.",
       "%reset": "Resets the current session.",
       "%undo": "Remove previous messages and its response from the message history.",
-      "%save_message [path]": "Saves messages to a specified JSON path. If no path is provided, it defaults to 'messages.json'.",
-      "%load_message [path]": "Loads messages from a specified JSON path. If no path is provided, it defaults to 'messages.json'.",
+      "%save_message [path]": "Saves messages to a specified JSON path. If no path is provided, it defaults to '[date]_messages_[counter].json'.",
+      "%load_message [path]": "Loads messages from a specified JSON path. If no path is provided, it loads the latest default message '[date]_messages_[counter].json'.",
+      "%delete_message [number]": "Deletes saved messages, preserving the most recent 'number' files. If no number is provided, it deletes all but the most recent file.",
       "%help": "Show this help message.",
     }
 
@@ -82,7 +85,13 @@ def default_handle(self, arguments):
 
 def handle_save_message(self, json_path):
     if json_path == "":
-      json_path = "messages.json"
+      now = datetime.datetime.now()
+      msg_counter = 0
+      while True:
+        json_path = now.strftime("%Y-%m-%d") + "_messages_" + str(msg_counter) + ".json"
+        if not os.path.exists(json_path):
+          break
+        msg_counter += 1
     if not json_path.endswith(".json"):
       json_path += ".json"
     with open(json_path, 'w') as f:
@@ -91,14 +100,42 @@ def handle_save_message(self, json_path):
     display_markdown_message(f"> messages json export to {os.path.abspath(json_path)}")
 
 def handle_load_message(self, json_path):
-    if json_path == "":
-      json_path = "messages.json"
+    if not json_path:
+      json_paths = glob.glob("*_messages_*.json")
+      if json_paths:
+        latest_path = max(json_paths, key=os.path.getmtime)
+        json_path = latest_path
+      else:
+        json_path = "messages.json"
     if not json_path.endswith(".json"):
       json_path += ".json"
     with open(json_path, 'r') as f:
       self.messages = json.load(f)
 
     display_markdown_message(f"> messages json loaded from {os.path.abspath(json_path)}")
+  
+def handle_delete_messages(self, num_to_keep):
+  if num_to_keep == "":
+    num_to_keep = "1"
+  num_to_keep = int(num_to_keep)
+  print(num_to_keep)
+  json_paths = glob.glob("*_messages_*.json")
+  print(json_paths)
+  if len(json_paths) <= num_to_keep:
+    print("No files to delete")
+    return
+  json_paths.sort(key=os.path.getmtime)
+  print(json_paths)
+  if num_to_keep < 0:
+    print("Number of files to keep must be positive")
+    return
+  elif num_to_keep > 0:
+    json_paths = json_paths[:-num_to_keep]
+  print(json_paths)
+  for path in json_paths:
+    os.remove(path)
+  print(f"Deleted {len(json_paths)} old json files")  
+   
 
 def handle_magic_command(self, user_input):
     # split the command into the command and the arguments, by the first whitespace
@@ -108,6 +145,7 @@ def handle_magic_command(self, user_input):
       "reset": handle_reset,
       "save_message": handle_save_message,
       "load_message": handle_load_message,
+      "delete_messages": handle_delete_messages,
       "undo": handle_undo,
     }
 

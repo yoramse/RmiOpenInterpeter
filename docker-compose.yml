@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  open-interpreter:
+    build: 
+      context: ./docker
+      dockerfile: Dockerfile.mini
+    volumes:
+      - .:/app
+    tty:
+      true

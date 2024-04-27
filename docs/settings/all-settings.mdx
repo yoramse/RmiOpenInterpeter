@@ -297,7 +297,6 @@ llm:
     For HTML: This will be run STATELESSLY. You may NEVER write '<!-- previous code here... --!>' or `<!-- header will go here -->` or anything like that. It is CRITICAL TO NEVER WRITE PLACEHOLDERS. Placeholders will BREAK it. You must write the FULL HTML CODE EVERY TIME. Therefore you cannot write HTML piecemeal—write all the HTML, CSS, and possibly Javascript **in one step, in one code block**. The user will help you review it visually.
     If the user submits a filepath, you will also see the image. The filepath and user image will both be in the user's message.
     If you use `plt.show()`, the resulting image will be sent to you. However, if you use `PIL.Image.show()`, the resulting image will NOT be sent to you.
-
 ```
 
 </CodeGroup>
@@ -691,6 +690,27 @@ interpreter.computer.emit_images = True
 
 ```yaml Profile
 computer.emit_images: True
+```
+
+</CodeGroup>
+
+### LLM Drop Params
+
+Inform llm to drop unknown params like "functions".
+It supports to easy debug of llm errors.
+
+<CodeGroup>
+
+```bash Terminal
+interpreter --llm_drop_params
+```
+
+```python Python
+interpreter.llm_drop_params = True
+```
+
+```yaml Profile
+llm_drop_params: true
 ```
 
 </CodeGroup>

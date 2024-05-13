@@ -71,11 +71,18 @@ def terminal_interface(interpreter, message):
 
     active_block = None
     voice_subprocess = None
+    auto_continue_initiated = False
 
     while True:
         if interactive:
-            ### This is the primary input for Open Interpreter.
-            message = cli_input("> ").strip() if interpreter.multi_line else input("> ").strip()
+        
+            if interpreter.auto_continue and auto_continue_initiated:
+                ## This sends 'continue' prompt back to LLM if auto_continue flag is True
+                message = "continue"
+            else:
+                ### This is the primary input for Open Interpreter.
+                message = cli_input("> ").strip() if interpreter.multi_line else input("> ").strip()
+                auto_continue_initiated = True
 
             try:
                 # This lets users hit the up arrow key for past messages
@@ -425,6 +432,10 @@ def terminal_interface(interpreter, message):
                 break
 
         except KeyboardInterrupt:
+            #Reset auto_continue variable to enable user to input again
+            if auto_continue_initiated:
+                auto_continue_initiated = False
+            
             # Exit gracefully
             if "active_block" in locals() and active_block:
                 active_block.end()

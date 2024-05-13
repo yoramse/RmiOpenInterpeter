@@ -32,6 +32,7 @@ tiktoken = "^0.6.0"
 aifs = "^0.0.15"
 platformdirs = "^4.2.0"
 pydantic = "^2.6.4"
+pyttsx3 = "^2.90"
 
 # Optional [os] dependencies
 opencv-python = { version = "^4.8.1.78", optional = true }

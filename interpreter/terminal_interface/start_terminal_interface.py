@@ -193,6 +193,13 @@ def start_terminal_interface(interpreter):
             "attribute": {"object": interpreter, "attr_name": "multi_line"},
         },
         {
+            "name": "llm_drop_params",
+            "nickname": "ldp",
+            "help_text": "set litellm.drop_params=True, Drop any unmapped params",
+            "type": bool,
+            "attribute": {"object": interpreter, "attr_name": "llm_drop_params"},
+        },
+        {
             "name": "local",
             "nickname": "l",
             "help_text": "experimentally run the LLM locally via Llamafile (this changes many more settings than `--offline`)",
